@@ -1,0 +1,80 @@
+{
+  "id": "019c8efd-9ac1-7980-9b08-683b4a35ab99",
+  "name": "LangGraph",
+  "start_time": "2026-02-24T09:31:50.849631",
+  "run_type": "chain",
+  "end_time": "2026-02-24T09:31:54.193088",
+  "extra": {
+    "metadata": {
+      "ls_run_depth": 0,
+      "revision_id": "b9965eb",
+      "thread_id": "audit_session_1"
+    },
+    "runtime": {
+      "langchain_core_version": "1.2.15",
+      "langchain_version": "1.2.10",
+      "library": "langchain-core",
+      "library_version": "1.2.15",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "py_implementation": "CPython",
+      "runtime": "python",
+      "runtime_version": "3.13.2",
+      "sdk": "langsmith-py",
+      "sdk_version": "0.7.6"
+    }
+  },
+  "error": null,
+  "serialized": null,
+  "events": [
+    {
+      "name": "start",
+      "time": "2026-02-24T09:31:50.849631+00:00"
+    },
+    {
+      "name": "end",
+      "time": "2026-02-24T09:31:54.193088+00:00"
+    }
+  ],
+  "inputs": {
+    "error": null,
+    "evidences": {},
+    "final_report": null,
+    "opinions": [],
+    "pdf_path": "test.pdf",
+    "repo_url": "test_repo"
+  },
+  "outputs": {
+    "evidences": {},
+    "opinions": []
+  },
+  "reference_example_id": null,
+  "parent_run_id": null,
+  "tags": [],
+  "attachments": {},
+  "session_id": "af8039de-5de6-409f-b215-be53d6b40ebd",
+  "child_run_ids": [
+    "019c8efd-9c04-7763-a88c-8a1eeafa752f",
+    "019c8efd-9ff1-7a41-9513-40dd5f52455d",
+    "019c8efd-a3e1-77e0-887f-276eb60379ec"
+  ],
+  "child_runs": null,
+  "feedback_stats": null,
+  "app_path": "/o/394bb3c8-155a-4219-98a1-cbbfc57b0178/projects/p/af8039de-5de6-409f-b215-be53d6b40ebd/r/019c8efd-9ac1-7980-9b08-683b4a35ab99?trace_id=019c8efd-9ac1-7980-9b08-683b4a35ab99&start_time=2026-02-24T09:31:50.849631",
+  "manifest_id": null,
+  "status": "success",
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_tokens": 0,
+  "prompt_token_details": null,
+  "completion_token_details": null,
+  "first_token_time": null,
+  "total_cost": null,
+  "prompt_cost": null,
+  "completion_cost": null,
+  "prompt_cost_details": null,
+  "completion_cost_details": null,
+  "parent_run_ids": [],
+  "trace_id": "019c8efd-9ac1-7980-9b08-683b4a35ab99",
+  "dotted_order": "20260224T093150849631Z019c8efd-9ac1-7980-9b08-683b4a35ab99",
+  "in_dataset": false
+}
