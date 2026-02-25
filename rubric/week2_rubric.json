@@ -1,0 +1,53 @@
+{
+  "name": "Week 2 - Code Quality & Documentation Evaluation",
+  "version": "1.0.0",
+  "description": "Comprehensive evaluation rubric for code repositories and PDF reports",
+  "dimensions": [
+    {
+      "name": "code_organization",
+      "target_artifact": "github_repo",
+      "description": "Evaluate code structure, modularity, and organization patterns",
+      "forensic_instruction": "Analyze repository structure: check for module separation, file organization, and architectural patterns. Look for clear separation of concerns, consistent naming conventions, and logical grouping of related code.",
+      "judicial_logic": "Score based on modularity (40%), naming conventions (30%), and separation of concerns (30%). Consider Python package structure, imports organization, and code reuse patterns.",
+      "synthesis_rules": "Integrate code organization findings with documentation quality assessment. Highlight patterns that affect both code structure and documentation clarity.",
+      "criteria": ["modularity", "naming", "structure", "imports"],
+      "weight": 0.3
+    },
+    {
+      "name": "documentation_quality",
+      "target_artifact": "github_repo",
+      "description": "Evaluate README completeness and inline documentation",
+      "forensic_instruction": "Extract and analyze README content: check for setup instructions, API documentation, usage examples, and contribution guidelines. Scan Python files for docstrings and inline comments.",
+      "judicial_logic": "Score based on completeness (40%), clarity (30%), examples (20%), and maintenance (10%). README should have badges, installation, quick start, API reference, and contribution guide.",
+      "synthesis_rules": "Correlate documentation quality with code organization. Well-documented code often indicates good organization practices.",
+      "criteria": ["readme", "docstrings", "examples", "badges"],
+      "weight": 0.2
+    },
+    {
+      "name": "pdf_analysis",
+      "target_artifact": "pdf_report",
+      "description": "Analyze PDF report structure and content quality",
+      "forensic_instruction": "Extract sections, tables, figures, and key findings from PDF. Identify report structure: abstract, methodology, results, conclusions. Extract data from tables and charts where possible.",
+      "judicial_logic": "Evaluate based on structure (30%), data visualization (30%), conclusions clarity (20%), and reproducibility (20%). Check if findings are supported by data.",
+      "synthesis_rules": "Synthesize PDF findings with any code evidence. Cross-reference report claims with actual implementation if available.",
+      "criteria": ["sections", "visuals", "conclusions", "data"],
+      "weight": 0.5
+    },
+    {
+      "name": "image_analysis",
+      "target_artifact": "extracted_images",
+      "description": "Analyze diagrams, screenshots, and visual elements",
+      "forensic_instruction": "Extract images from PDF or documentation. Analyze diagrams for clarity, completeness, and relevance. Check for architecture diagrams, flowcharts, and screenshots.",
+      "judicial_logic": "Score based on clarity (40%), relevance (30%), and completeness (30%). Good visuals should be readable, labeled, and support the text.",
+      "synthesis_rules": "Connect visual findings with textual documentation. Visuals should complement and clarify written content.",
+      "criteria": ["clarity", "relevance", "completeness"],
+      "weight": 0.3
+    }
+  ],
+  "synthesis_rules": {
+    "combine_findings": "Merge evidence from all sources into coherent narrative",
+    "weighted_scoring": "Calculate final scores based on dimension weights",
+    "executive_summary": "Generate 3-5 bullet points of key findings",
+    "recommendations": "Provide actionable improvement suggestions"
+  }
+}
