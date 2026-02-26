@@ -1,177 +1,345 @@
-"""
-Git repository analysis tools
-Production-grade git forensics
-"""
+# src/tools/repo_tools.py - COMPLETE UPDATED FILE
 
-import subprocess
+import git
+import os
+import tempfile
+import shutil
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 from datetime import datetime
+import time
 
-class GitAnalyzer:
-    """Production-grade git analysis tools"""
-    
-    def __init__(self, repo_path: Path):
+class RepoInvestigator:
+    def __init__(self, repo_path: str):
         self.repo_path = repo_path
-        self._check_git_repo()
-    
-    def _check_git_repo(self) -> bool:
-        """Check if path is a git repository"""
+        self.temp_dir = None
+        self.repo = None
+        self.working_dir = None
+        
+    def setup(self):
+        """Clone or open repository with improved error handling"""
+        print("\n📦 Setting up repository...")
+        
         try:
-            result = subprocess.run(
-                ['git', 'rev-parse', '--git-dir'],
-                cwd=self.repo_path,
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            return result.returncode == 0
-        except:
+            if self.repo_path.startswith(('http://', 'https://', 'git@')):
+                # GitHub URL
+                self.temp_dir = tempfile.mkdtemp()
+                print(f"   Cloning to temp directory: {self.temp_dir}")
+                
+                # Clone with progress and timeout
+                self.repo = git.Repo.clone_from(
+                    self.repo_path, 
+                    self.temp_dir,
+                    progress=None,  # Could add custom progress reporter
+                    depth=50  # Limit clone depth for speed
+                )
+                self.working_dir = self.temp_dir
+                print("   ✅ Clone complete")
+            else:
+                # Local path
+                if not os.path.exists(self.repo_path):
+                    raise FileNotFoundError(f"Local path not found: {self.repo_path}")
+                    
+                self.working_dir = self.repo_path
+                self.repo = git.Repo(self.repo_path)
+                print(f"   ✅ Using local repo: {self.repo_path}")
+                
+        except git.GitCommandError as e:
+            print(f"   ❌ Git error: {e}")
+            raise
+        except Exception as e:
+            print(f"   ❌ Setup error: {e}")
+            raise
+    
+    def cleanup(self):
+        """Clean up temp directory if used with better Windows handling"""
+        if self.temp_dir and os.path.exists(self.temp_dir):
+            print(f"   🧹 Cleaning up temp directory: {self.temp_dir}")
+            
+            # Try multiple cleanup strategies
+            strategies = [
+                self._cleanup_normal,
+                self._cleanup_force_windows,
+                self._cleanup_ignore_errors
+            ]
+            
+            for strategy in strategies:
+                try:
+                    if strategy():
+                        break
+                except Exception as e:
+                    continue
+            
+            # Final check
+            if os.path.exists(self.temp_dir):
+                print(f"   ⚠️  Temp directory still exists: {self.temp_dir}")
+                print(f"   📁 You may need to manually delete it")
+    
+    def _cleanup_normal(self) -> bool:
+        """Normal cleanup attempt"""
+        try:
+            shutil.rmtree(self.temp_dir)
+            print(f"   ✅ Cleaned up temp directory")
+            return True
+        except Exception:
             return False
     
-    def get_commit_history(self, max_count: Optional[int] = None) -> List[Dict]:
-        """Get structured commit history with full details"""
-        if not self._check_git_repo():
-            return []
-        
-        # Format: hash|author_name|author_email|date|subject|body
-        format_str = '%H|%an|%ae|%ad|%s|%b'
-        cmd = ['git', 'log', f'--pretty=format:{format_str}', '--date=iso']
-        
-        if max_count:
-            cmd.extend(['-n', str(max_count)])
-        
+    def _cleanup_force_windows(self) -> bool:
+        """Force cleanup for Windows permission issues"""
         try:
-            result = subprocess.run(
-                cmd,
-                cwd=self.repo_path,
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
+            # First, try to release any git locks
+            git_dir = os.path.join(self.temp_dir, '.git')
+            if os.path.exists(git_dir):
+                # Remove write protection from all files
+                for root, dirs, files in os.walk(self.temp_dir):
+                    for file in files:
+                        try:
+                            file_path = os.path.join(root, file)
+                            os.chmod(file_path, 0o777)
+                        except:
+                            pass
+                    
+                    for dir in dirs:
+                        try:
+                            dir_path = os.path.join(root, dir)
+                            os.chmod(dir_path, 0o777)
+                        except:
+                            pass
+                
+                # Small delay to allow OS to release file handles
+                time.sleep(0.5)
             
-            if result.returncode != 0:
-                return []
-            
-            commits = []
-            for line in result.stdout.strip().split('\n'):
-                if line:
-                    parts = line.split('|', 5)
-                    if len(parts) >= 5:
-                        commits.append({
-                            'hash': parts[0],
-                            'author_name': parts[1],
-                            'author_email': parts[2],
-                            'date': parts[3],
-                            'subject': parts[4],
-                            'body': parts[5] if len(parts) > 5 else '',
-                            'timestamp': datetime.fromisoformat(parts[3].replace(' ', 'T'))
-                        })
-            return commits
-            
-        except subprocess.TimeoutExpired:
-            print("Git command timed out")
-            return []
-        except Exception as e:
-            print(f"Git error: {e}")
-            return []
-    
-    def get_commit_files(self, commit_hash: str) -> List[str]:
-        """Get files changed in a commit"""
-        try:
-            result = subprocess.run(
-                ['git', 'show', '--name-only', '--pretty=format:', commit_hash],
-                cwd=self.repo_path,
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            
-            if result.returncode != 0:
-                return []
-            
-            files = [f for f in result.stdout.strip().split('\n') if f]
-            return files
-            
+            # Try removal again
+            shutil.rmtree(self.temp_dir)
+            print(f"   ✅ Force cleanup completed")
+            return True
         except Exception:
-            return []
+            return False
     
-    def detect_monolithic_init(self) -> Dict:
-        """Detect if initial commit was monolithic"""
-        commits = self.get_commit_history(max_count=10)
-        
-        if not commits:
-            return {'is_monolithic': False, 'reason': 'No commits found'}
-        
-        # Get first commit (last in reverse order)
-        first_commit = commits[-1]
-        files = self.get_commit_files(first_commit['hash'])
-        
-        # Analysis metrics
-        file_count = len(files)
-        
-        # Heuristics for monolithic detection
-        is_monolithic = False
-        reasons = []
-        
-        if file_count > 20:
-            is_monolithic = True
-            reasons.append(f"Too many files ({file_count} > 20)")
-        
-        # Check commit message
-        subject = first_commit['subject'].lower()
-        monolithic_indicators = ['init', 'initial', 'first', 'setup', 'bootstrap']
-        if any(ind in subject for ind in monolithic_indicators):
-            if file_count > 10:
-                is_monolithic = True
-                reasons.append(f"Initial commit with {file_count} files")
-        
-        # Check for multiple core components
-        core_dirs = set()
-        for f in files:
-            parts = f.split('/')
-            if parts:
-                core_dirs.add(parts[0])
-        
-        if len(core_dirs) > 3 and file_count > 15:
-            is_monolithic = True
-            reasons.append(f"Spans multiple directories: {', '.join(list(core_dirs)[:3])}")
-        
-        return {
-            'is_monolithic': is_monolithic,
-            'file_count': file_count,
-            'commit_message': first_commit['subject'],
-            'files_sample': files[:5],  # First 5 files as sample
-            'reasons': reasons,
-            'commit_hash': first_commit['hash'],
-            'commit_date': first_commit['date']
-        }
+    def _cleanup_ignore_errors(self) -> bool:
+        """Last resort: ignore errors during cleanup"""
+        try:
+            shutil.rmtree(self.temp_dir, ignore_errors=True)
+            if not os.path.exists(self.temp_dir):
+                print(f"   ✅ Cleanup completed (with ignored errors)")
+                return True
+        except Exception:
+            pass
+        return False
     
-    def get_commit_progression(self) -> Dict:
-        """Analyze commit progression over time"""
-        commits = self.get_commit_history(max_count=100)
+    def analyze_git_history(self) -> Dict[str, Any]:
+        """
+        Step 1.1: Git Forensics
+        Success: Extract commit history, detect monolithic commits, check progression
+        """
+        print("\n" + "="*60)
+        print("🔍 STEP 1.1: GIT FORENSICS")
+        print("="*60)
         
-        if len(commits) < 3:
-            return {'has_progression': False, 'reason': 'Insufficient commits'}
+        try:
+            # Determine default branch (main/master)
+            try:
+                default_branch = self.repo.active_branch.name
+            except:
+                # Try common branch names
+                for branch in ['main', 'master', 'develop']:
+                    try:
+                        default_branch = branch
+                        list(self.repo.iter_commits(branch, max_count=1))
+                        break
+                    except:
+                        continue
+                else:
+                    default_branch = 'HEAD'
+            
+            # Get commit history
+            commits = []
+            commit_count = 0
+            max_commits = 50  # Limit to prevent overwhelming
+            
+            for commit in self.repo.iter_commits(default_branch, max_count=max_commits):
+                try:
+                    # Safely get commit stats
+                    stats = {}
+                    if hasattr(commit, 'stats') and commit.stats:
+                        stats = {
+                            'files_changed': len(commit.stats.files) if commit.stats.files else 0,
+                            'insertions': commit.stats.total.get('insertions', 0) if commit.stats.total else 0,
+                            'deletions': commit.stats.total.get('deletions', 0) if commit.stats.total else 0
+                        }
+                    
+                    # Safely get commit info
+                    commit_data = {
+                        'hash': commit.hexsha[:8] if commit.hexsha else 'unknown',
+                        'message': commit.message.strip() if commit.message else '',
+                        'timestamp': datetime.fromtimestamp(commit.committed_date).isoformat() if hasattr(commit, 'committed_date') else '',
+                        'author': str(commit.author) if commit.author else 'unknown',
+                        'stats': stats
+                    }
+                    
+                    commits.append(commit_data)
+                    commit_count += 1
+                    
+                except Exception as e:
+                    print(f"   ⚠️  Error processing commit {commit.hexsha[:8] if commit.hexsha else 'unknown'}: {e}")
+                    continue
+            
+            # Reverse to get chronological order (oldest first)
+            commits.reverse()
+            
+            # Analyze first commit for monolithic detection
+            monolithic_detected = False
+            total_changes_first = 0
+            if commits and commits[0].get('stats'):
+                first_commit = commits[0]
+                total_changes_first = (first_commit['stats'].get('insertions', 0) + 
+                                     first_commit['stats'].get('deletions', 0))
+                monolithic_detected = total_changes_first > 500  # Arbitrary threshold
+            
+            # Check for 3+ commits progression
+            has_progression = len(commits) >= 3
+            
+            # Format git log style output
+            git_log = []
+            for i, commit in enumerate(commits, 1):
+                message_preview = commit['message'][:50] + ('...' if len(commit['message']) > 50 else '')
+                timestamp_preview = commit['timestamp'][:10] if commit['timestamp'] else 'no-date'
+                git_log.append(f"{i:2d}. {commit['hash']} - {message_preview} ({timestamp_preview})")
+            
+            result = {
+                'total_commits_analyzed': len(commits),
+                'has_three_commits_progression': has_progression,
+                'monolithic_init_detected': monolithic_detected,
+                'first_commit_changes': total_changes_first if monolithic_detected else None,
+                'default_branch': default_branch,
+                'commits': commits,
+                'git_log': git_log
+            }
+            
+            # Display results
+            print("\n📊 GIT HISTORY RESULTS:")
+            print(f"   Branch analyzed: {default_branch}")
+            print(f"   Total commits: {len(commits)}")
+            print(f"   Has 3+ commits progression: {has_progression}")
+            print(f"   Monolithic init detected: {monolithic_detected}")
+            
+            if monolithic_detected:
+                print(f"   ⚠️  First commit had {total_changes_first}+ line changes")
+            
+            print("\n📜 Git Log (chronological):")
+            for line in git_log:
+                print(f"   {line}")
+            
+            return result
+            
+        except git.GitCommandError as e:
+            error_msg = f"Git command error: {e}"
+            print(f"   ❌ {error_msg}")
+            return {'error': error_msg, 'stage': 'git_forensics'}
+        except Exception as e:
+            error_msg = f"Unexpected error: {e}"
+            print(f"   ❌ {error_msg}")
+            import traceback
+            traceback.print_exc()
+            return {'error': error_msg, 'stage': 'git_forensics'}
+    
+    def analyze_ast_structure(self) -> Dict[str, Any]:
+        """
+        Step 1.2: AST Parsing (Placeholder for now)
+        Will parse Python files and analyze structure
+        """
+        print("\n" + "="*60)
+        print("🔍 STEP 1.2: AST PARSING")
+        print("="*60)
         
-        # Calculate time between commits
-        timestamps = [c['timestamp'] for c in commits]
-        time_diffs = []
-        for i in range(len(timestamps)-1):
-            diff = (timestamps[i] - timestamps[i+1]).total_seconds() / 3600  # hours
-            time_diffs.append(diff)
+        # TODO: Implement AST parsing
+        # This is a placeholder for the next step
         
-        avg_time_between = sum(time_diffs) / len(time_diffs) if time_diffs else 0
-        
-        # Check message quality
-        messages = [c['subject'] for c in commits]
-        avg_message_length = sum(len(m.split()) for m in messages) / len(messages)
-        
-        return {
-            'has_progression': True,
-            'total_commits': len(commits),
-            'avg_time_between_commits_hours': round(avg_time_between, 2),
-            'avg_message_length_words': round(avg_message_length, 1),
-            'first_commit_date': commits[-1]['date'],
-            'last_commit_date': commits[0]['date']
+        result = {
+            'status': 'not_implemented',
+            'message': 'AST parsing coming soon!',
+            'files_found': [],
+            'stats': {}
         }
+        
+        # Just count Python files for now
+        if self.working_dir:
+            python_files = list(Path(self.working_dir).rglob("*.py"))
+            result['files_found'] = [str(f.relative_to(self.working_dir)) for f in python_files[:10]]
+            result['stats']['total_python_files'] = len(python_files)
+            
+            print(f"\n📊 AST PARSING PREVIEW:")
+            print(f"   Found {len(python_files)} Python files")
+            if python_files:
+                print("\n   Sample files:")
+                for f in python_files[:5]:
+                    print(f"   - {f.relative_to(self.working_dir)}")
+        
+        return result
+    
+    def analyze_dependencies(self) -> Dict[str, Any]:
+        """
+        Step 1.3: Dependency Analysis (Placeholder)
+        Will analyze requirements, imports, etc.
+        """
+        print("\n" + "="*60)
+        print("🔍 STEP 1.3: DEPENDENCY ANALYSIS")
+        print("="*60)
+        
+        # TODO: Implement dependency analysis
+        
+        result = {
+            'status': 'not_implemented',
+            'message': 'Dependency analysis coming soon!',
+            'dependencies': {}
+        }
+        
+        # Look for requirement files
+        if self.working_dir:
+            req_files = list(Path(self.working_dir).glob("requirements*.txt")) + \
+                       list(Path(self.working_dir).glob("pyproject.toml")) + \
+                       list(Path(self.working_dir).glob("setup.py"))
+            
+            result['dependency_files'] = [str(f.relative_to(self.working_dir)) for f in req_files]
+            
+            print(f"\n📊 DEPENDENCY ANALYSIS PREVIEW:")
+            print(f"   Found {len(req_files)} dependency files")
+            for f in req_files:
+                print(f"   - {f.relative_to(self.working_dir)}")
+        
+        return result
+    
+    def full_analysis(self) -> Dict[str, Any]:
+        """
+        Run all analysis steps
+        """
+        print("\n" + "🚀"*20)
+        print("STARTING FULL REPOSITORY ANALYSIS")
+        print("🚀"*20)
+        
+        results = {}
+        
+        try:
+            self.setup()
+            
+            # Step 1.1: Git Forensics
+            results['git_forensics'] = self.analyze_git_history()
+            
+            # Step 1.2: AST Parsing
+            results['ast_analysis'] = self.analyze_ast_structure()
+            
+            # Step 1.3: Dependency Analysis
+            results['dependency_analysis'] = self.analyze_dependencies()
+            
+            print("\n" + "✅"*20)
+            print("FULL ANALYSIS COMPLETE")
+            print("✅"*20)
+            
+        except Exception as e:
+            print(f"\n❌ Analysis failed: {e}")
+            results['error'] = str(e)
+            
+        finally:
+            self.cleanup()
+        
+        return results

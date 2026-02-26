@@ -1,0 +1,227 @@
+{
+  "total_commits_analyzed": 18,
+  "has_three_commits_progression": true,
+  "monolithic_init_detected": true,
+  "first_commit_changes": 2741,
+  "default_branch": "main",
+  "commits": [
+    {
+      "hash": "215ca3f2",
+      "message": "Install Core Dependencies",
+      "timestamp": "2026-02-24T11:13:22",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 5,
+        "insertions": 2741,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "79da99fd",
+      "message": "adding .env",
+      "timestamp": "2026-02-24T11:35:41",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 1,
+        "insertions": 1,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "7b7fbfce",
+      "message": "creating folder stracture of graph and state.py",
+      "timestamp": "2026-02-24T11:37:33",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 2,
+        "insertions": 0,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "1d3941db",
+      "message": "creating detective , judge and justice",
+      "timestamp": "2026-02-24T11:38:47",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 3,
+        "insertions": 0,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "4a86dfbb",
+      "message": "creating the component files",
+      "timestamp": "2026-02-24T11:40:03",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 4,
+        "insertions": 0,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "7bd64a59",
+      "message": "finishing creating Production Folder Structure",
+      "timestamp": "2026-02-24T11:43:39",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 5,
+        "insertions": 0,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "bfce1f42",
+      "message": "Implementing Typed State.py",
+      "timestamp": "2026-02-24T11:50:46",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 1,
+        "insertions": 33,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "b9965eb8",
+      "message": "verfiy  Graph compiled with checkpointer",
+      "timestamp": "2026-02-24T12:04:41",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 5,
+        "insertions": 103,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "e9f0f727",
+      "message": "feat: integrate LangSmith observability",
+      "timestamp": "2026-02-24T13:24:10",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 1,
+        "insertions": 106,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "733a5976",
+      "message": "docs: add LangSmith trace export",
+      "timestamp": "2026-02-24T13:24:33",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 3,
+        "insertions": 80,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "39e43f58",
+      "message": "confirming Trace",
+      "timestamp": "2026-02-25T16:52:57",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 7,
+        "insertions": 698,
+        "deletions": 140
+      }
+    },
+    {
+      "hash": "917348cd",
+      "message": "updating State.py",
+      "timestamp": "2026-02-25T17:23:30",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 2,
+        "insertions": 101,
+        "deletions": 3
+      }
+    },
+    {
+      "hash": "f10d22a1",
+      "message": "feat(phase1): implement constitutional engine with targeting protocol\n\n- Add strictly typed AgentState with targeting fields\n- Create ContextBuilder with hot-swappable rubric loading\n- Implement targeting protocol for github_repo, pdf_report, extracted_images\n- Add parallel detective node skeletons\n- Build graph with START \u2192 ContextBuilder \u2192 Detectives (Parallel) \u2192 END\n- Add checkpointing and LangSmith integration\n- Create verification script with 7 comprehensive checks\n\nPhase 1 complete: Constitution Engine ready for evidence gathering",
+      "timestamp": "2026-02-25T18:11:50",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 9,
+        "insertions": 556,
+        "deletions": 38
+      }
+    },
+    {
+      "hash": "d3eeff59",
+      "message": "adding readme",
+      "timestamp": "2026-02-25T20:45:47",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 1,
+        "insertions": 336,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "0869158d",
+      "message": "Add interim architecture report PDF",
+      "timestamp": "2026-02-25T20:48:38",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 1,
+        "insertions": 0,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "6663a115",
+      "message": "\ud83d\udd2c TESTING STEP 2: Rubric JSON\n==================================================\n\u2705 Test 2.1: Rubric file exists\n\u2705 Test 2.2: Valid JSON format\n\u2705 Test 2.3: All required fields present\n\u2705 Test 2.4: All 7 dimensions have required fields\n\u2705 Test 2.5: Target artifacts found: repository, code, document",
+      "timestamp": "2026-02-26T15:52:46",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 9,
+        "insertions": 255,
+        "deletions": 119
+      }
+    },
+    {
+      "hash": "e6da9a5d",
+      "message": "adding ast_tools",
+      "timestamp": "2026-02-26T15:54:13",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 1,
+        "insertions": 246,
+        "deletions": 0
+      }
+    },
+    {
+      "hash": "7177e133",
+      "message": "testing repo",
+      "timestamp": "2026-02-26T15:55:23",
+      "author": "Abedulaziz01",
+      "stats": {
+        "files_changed": 5,
+        "insertions": 254,
+        "deletions": 0
+      }
+    }
+  ],
+  "git_log": [
+    " 1. 215ca3f2 - Install Core Dependencies (2026-02-24)",
+    " 2. 79da99fd - adding .env (2026-02-24)",
+    " 3. 7b7fbfce - creating folder stracture of graph and state.py (2026-02-24)",
+    " 4. 1d3941db - creating detective , judge and justice (2026-02-24)",
+    " 5. 4a86dfbb - creating the component files (2026-02-24)",
+    " 6. 7bd64a59 - finishing creating Production Folder Structure (2026-02-24)",
+    " 7. bfce1f42 - Implementing Typed State.py (2026-02-24)",
+    " 8. b9965eb8 - verfiy  Graph compiled with checkpointer (2026-02-24)",
+    " 9. e9f0f727 - feat: integrate LangSmith observability (2026-02-24)",
+    "10. 733a5976 - docs: add LangSmith trace export (2026-02-24)",
+    "11. 39e43f58 - confirming Trace (2026-02-25)",
+    "12. 917348cd - updating State.py (2026-02-25)",
+    "13. f10d22a1 - feat(phase1): implement constitutional engine with... (2026-02-25)",
+    "14. d3eeff59 - adding readme (2026-02-25)",
+    "15. 0869158d - Add interim architecture report PDF (2026-02-25)",
+    "16. 6663a115 - \ud83d\udd2c TESTING STEP 2: Rubric JSON\n====================... (2026-02-26)",
+    "17. e6da9a5d - adding ast_tools (2026-02-26)",
+    "18. 7177e133 - testing repo (2026-02-26)"
+  ]
+}
