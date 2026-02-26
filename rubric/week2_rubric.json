@@ -1,53 +1,98 @@
 {
-  "name": "Week 2 - Code Quality & Documentation Evaluation",
-  "version": "1.0.0",
-  "description": "Comprehensive evaluation rubric for code repositories and PDF reports",
+  "version": "2.0",
+  "name": "FDE Week 2 - Detective Layer Rubric",
+  "description": "Rubric for evaluating forensic evidence collection",
   "dimensions": [
     {
-      "name": "code_organization",
-      "target_artifact": "github_repo",
-      "description": "Evaluate code structure, modularity, and organization patterns",
-      "forensic_instruction": "Analyze repository structure: check for module separation, file organization, and architectural patterns. Look for clear separation of concerns, consistent naming conventions, and logical grouping of related code.",
-      "judicial_logic": "Score based on modularity (40%), naming conventions (30%), and separation of concerns (30%). Consider Python package structure, imports organization, and code reuse patterns.",
-      "synthesis_rules": "Integrate code organization findings with documentation quality assessment. Highlight patterns that affect both code structure and documentation clarity.",
-      "criteria": ["modularity", "naming", "structure", "imports"],
-      "weight": 0.3
+      "id": "git_forensics",
+      "name": "Git History Analysis",
+      "weight": 0.2,
+      "target_artifact": "repository",
+      "forensic_instruction": "Analyze git commit history for progression and monolithic commits",
+      "judicial_logic": "Evaluate if commit history shows proper development progression",
+      "synthesis_rules": "Combine with code structure analysis for final judgment",
+      "thresholds": {
+        "pass": 0.8,
+        "review": 0.5
+      }
     },
     {
-      "name": "documentation_quality",
-      "target_artifact": "github_repo",
-      "description": "Evaluate README completeness and inline documentation",
-      "forensic_instruction": "Extract and analyze README content: check for setup instructions, API documentation, usage examples, and contribution guidelines. Scan Python files for docstrings and inline comments.",
-      "judicial_logic": "Score based on completeness (40%), clarity (30%), examples (20%), and maintenance (10%). README should have badges, installation, quick start, API reference, and contribution guide.",
-      "synthesis_rules": "Correlate documentation quality with code organization. Well-documented code often indicates good organization practices.",
-      "criteria": ["readme", "docstrings", "examples", "badges"],
-      "weight": 0.2
+      "id": "state_management",
+      "name": "State Management Rigor",
+      "weight": 0.25,
+      "target_artifact": "code",
+      "forensic_instruction": "Verify Pydantic BaseModel or TypedDict usage in state files",
+      "judicial_logic": "Check if state models follow best practices",
+      "synthesis_rules": "Consider impact on type safety and reliability",
+      "thresholds": {
+        "pass": 0.9,
+        "review": 0.6
+      }
     },
     {
-      "name": "pdf_analysis",
-      "target_artifact": "pdf_report",
-      "description": "Analyze PDF report structure and content quality",
-      "forensic_instruction": "Extract sections, tables, figures, and key findings from PDF. Identify report structure: abstract, methodology, results, conclusions. Extract data from tables and charts where possible.",
-      "judicial_logic": "Evaluate based on structure (30%), data visualization (30%), conclusions clarity (20%), and reproducibility (20%). Check if findings are supported by data.",
-      "synthesis_rules": "Synthesize PDF findings with any code evidence. Cross-reference report claims with actual implementation if available.",
-      "criteria": ["sections", "visuals", "conclusions", "data"],
-      "weight": 0.5
+      "id": "graph_orchestration",
+      "name": "Graph Structure Analysis",
+      "weight": 0.2,
+      "target_artifact": "code",
+      "forensic_instruction": "Detect StateGraph, add_edge calls, fan-out patterns",
+      "judicial_logic": "Evaluate if graph structure supports parallel processing",
+      "synthesis_rules": "Verify fan-in sync node exists",
+      "thresholds": {
+        "pass": 0.85,
+        "review": 0.5
+      }
     },
     {
-      "name": "image_analysis",
-      "target_artifact": "extracted_images",
-      "description": "Analyze diagrams, screenshots, and visual elements",
-      "forensic_instruction": "Extract images from PDF or documentation. Analyze diagrams for clarity, completeness, and relevance. Check for architecture diagrams, flowcharts, and screenshots.",
-      "judicial_logic": "Score based on clarity (40%), relevance (30%), and completeness (30%). Good visuals should be readable, labeled, and support the text.",
-      "synthesis_rules": "Connect visual findings with textual documentation. Visuals should complement and clarify written content.",
-      "criteria": ["clarity", "relevance", "completeness"],
-      "weight": 0.3
+      "id": "tool_safety",
+      "name": "Tool Safety Engineering",
+      "weight": 0.15,
+      "target_artifact": "code",
+      "forensic_instruction": "Check for tempfile.TemporaryDirectory, flag unsafe os.system",
+      "judicial_logic": "Determine if code follows security best practices",
+      "synthesis_rules": "Overall security posture assessment",
+      "thresholds": {
+        "pass": 0.95,
+        "review": 0.7
+      }
+    },
+    {
+      "id": "structured_output",
+      "name": "Structured Output Enforcement",
+      "weight": 0.2,
+      "target_artifact": "code",
+      "forensic_instruction": "Verify .with_structured_output() or .bind_tools() usage",
+      "judicial_logic": "Check if outputs are properly typed",
+      "synthesis_rules": "Ensure all nodes produce structured output",
+      "thresholds": {
+        "pass": 0.9,
+        "review": 0.6
+      }
+    },
+    {
+      "id": "pdf_analysis",
+      "name": "Document Analysis",
+      "weight": 0.25,
+      "target_artifact": "document",
+      "forensic_instruction": "Analyze PDF for theoretical depth and hallucinated paths",
+      "judicial_logic": "Evaluate if document provides real explanations vs buzzwords",
+      "synthesis_rules": "Cross-reference with actual code structure",
+      "thresholds": {
+        "pass": 0.8,
+        "review": 0.5
+      }
+    },
+    {
+      "id": "diagram_verification",
+      "name": "Diagram Structure Verification",
+      "weight": 0.15,
+      "target_artifact": "document",
+      "forensic_instruction": "Extract and classify diagrams, verify parallel structure",
+      "judicial_logic": "Check if diagrams match implementation",
+      "synthesis_rules": "Combine with code analysis for consistency check",
+      "thresholds": {
+        "pass": 0.7,
+        "review": 0.4
+      }
     }
-  ],
-  "synthesis_rules": {
-    "combine_findings": "Merge evidence from all sources into coherent narrative",
-    "weighted_scoring": "Calculate final scores based on dimension weights",
-    "executive_summary": "Generate 3-5 bullet points of key findings",
-    "recommendations": "Provide actionable improvement suggestions"
-  }
+  ]
 }

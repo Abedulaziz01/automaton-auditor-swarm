@@ -1,87 +1,49 @@
 """
-Typed State Definition for Automaton Auditor
-Constitutional State with Targeting Protocol Fields
+Production-grade state management with Pydantic models
+Enhanced for Phase 2 detective evidence
 """
 
-from typing import List, Dict, Optional, Literal, Any
-from typing_extensions import TypedDict, Annotated
-from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional, TypedDict, Annotated, Literal
+from pydantic import BaseModel, Field, ConfigDict
 import operator
-
+from datetime import datetime
 
 class Evidence(BaseModel):
-    """Forensic evidence collected by detectives"""
-    found: bool = Field(..., description="Whether the evidence was found")
-    content: Optional[str] = Field(None, description="The actual content found")
-    location: str = Field(..., description="File path where evidence was found")
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score 0-1")
-    metadata: Dict[str, str] = Field(default_factory=dict, description="Additional context")
-
+    """Core evidence model - what each detective finds"""
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
+    dimension_id: str = Field(description="Which rubric dimension this evidence relates to")
+    findings: List[str] = Field(description="List of specific findings")
+    confidence: float = Field(ge=0.0, le=1.0, description="Confidence score 0-1")
+    source: str = Field(description="Source file or location")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    verified: bool = Field(default=False, description="Whether evidence has been verified")
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
 
 class JudicialOpinion(BaseModel):
-    """Opinion from a judge persona"""
-    judge: Literal["Prosecutor", "Defense", "TechLead"] = Field(..., description="Which judge spoke")
-    criterion_id: str = Field(..., description="Which rubric criterion this addresses")
-    score: int = Field(..., ge=1, le=5, description="Score from 1-5")
-    argument: str = Field(..., description="Detailed reasoning")
-    cited_evidence: List[str] = Field(..., description="Evidence IDs that support this opinion")
-    dissent: Optional[str] = Field(None, description="What this judge disagrees with")
-
+    """Judicial opinion model - what judges decide"""
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
+    dimension_id: str = Field(description="Which rubric dimension this opinion covers")
+    verdict: Literal["PASS", "FAIL", "REVIEW"] = Field(description="Final verdict")
+    reasoning: str = Field(description="Detailed reasoning")
+    evidence_used: List[str] = Field(description="Evidence IDs used")
+    confidence: float = Field(ge=0.0, le=1.0)
+    suggested_remediation: Optional[str] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
 
 class AgentState(TypedDict):
-    """Main state flowing through the LangGraph
-    Now includes targeting protocol fields for constitutional routing
-    """
-    
-    # ===== ORIGINAL FIELDS (Keep these) =====
-    # Inputs
-    repo_url: str
-    pdf_path: str
-    
-    # Collections with reducers
-    evidences: Annotated[Dict[str, Evidence], operator.ior]
-    opinions: Annotated[List[JudicialOpinion], operator.add]
-    
-    # Outputs
-    final_report: Optional[str]
-    error: Optional[str]
-    
-    # ===== NEW FIELDS for Phase 1 Constitution Engine =====
-    # Full rubric loaded from JSON
-    rubric: Dict[str, Any]
-    
-    # Targeting Protocol Fields (populated by ContextBuilder)
-    github_dimensions: List[Dict[str, Any]]  # Dimensions targeting github_repo
-    pdf_dimensions: List[Dict[str, Any]]     # Dimensions targeting pdf_report
-    image_dimensions: List[Dict[str, Any]]    # Dimensions targeting extracted_images
-    synthesis_rules: Dict[str, Any]            # Rules for Chief Justice
-    
-    # Runtime tracking
-    current_dimension: Optional[str]           # Currently processing dimension
-    errors: List[str]                           # Collect errors instead of single error
+    """Main agent state with reducers"""
+    rubric: Dict[str, Any]  # Loaded rubric
+    evidences: Annotated[List[Evidence], operator.add]  # Evidence accumulator
+    opinions: Annotated[List[JudicialOpinion], operator.add]  # Judicial opinions
+    errors: Annotated[List[str], operator.add]  # Error accumulator
+    current_step: str  # Current step in workflow
+    metadata: Dict[str, Any]  # Additional metadata
+    investigation_targets: Dict[str, str]  # repo_path, pdf_path etc.
 
-
-# Quick validation test
-if __name__ == "__main__":
-    # Test creating a state with all required fields
-    test_state: AgentState = {
-        # Original fields
-        "repo_url": "https://github.com/test/repo",
-        "pdf_path": "/path/to/report.pdf",
-        "evidences": {},
-        "opinions": [],
-        "final_report": None,
-        "error": None,
-        
-        # New fields
-        "rubric": {},
-        "github_dimensions": [],
-        "pdf_dimensions": [],
-        "image_dimensions": [],
-        "synthesis_rules": {},
-        "current_dimension": None,
-        "errors": []
-    }
-    
-    print("✅ AgentState updated successfully with targeting protocol fields")
-    print(f"   Total fields: {len(test_state)}")
+class DetectiveOutput(BaseModel):
+    """Structured output for detectives"""
+    evidences: List[Evidence]
+    errors: List[str]
+    metadata: Dict[str, Any]
