@@ -1,4 +1,4 @@
-# Week 2 Interim Architecture Report
+
 
 ## The Automaton Auditor – Digital Courtroom
 
